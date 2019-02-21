@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -63,17 +62,12 @@ namespace Aria.DroidApp
         {
             var alarmDate = timePicker.ToFutureDateTime();
 
-            var resetIntent = new Intent(this, typeof(MainActivity));
-            resetIntent.SetAction(this.GetResetCallForwardingActionName());
-
-            var pendingIntent = PendingIntent.GetActivity(this, default(int), resetIntent, PendingIntentFlags.UpdateCurrent);
-
             var alarmManager = (AlarmManager) GetSystemService(AlarmService);
             alarmManager
                 .SetExact(
                     AlarmType.RtcWakeup, 
                     alarmDate.ToUniversalTime().ToEpochMilliseconds(), 
-                    pendingIntent);
+                    IntentFactory.CreateWakeOnAlarmIntent(this));
 
             ShowToast(alarmDate.FormatDateTime());
             ShowToast(alarmDate.GetTimeRemaining());

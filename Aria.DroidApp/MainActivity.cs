@@ -61,16 +61,22 @@ namespace Aria.DroidApp
 
         private void OnResetButtonClick(object sender, EventArgs e)
         {
-            var testIntent = new Intent(this, typeof(MainActivity));
-            testIntent.SetAction(this.GetResetCallForwardingActionName());
-
-            var pendingIntent = PendingIntent.GetActivity(this, default(int), testIntent, PendingIntentFlags.UpdateCurrent);
-
             var alarmDate = timePicker.ToFutureDateTime();
-            ShowToast(alarmDate.ToString("ddd dd MMM hh:mm tt", CultureInfo.CurrentUICulture));
 
-            var alarmManager = (AlarmManager)GetSystemService(AlarmService);
-            alarmManager.SetExact(AlarmType.RtcWakeup, alarmDate.ToUniversalTime().ToEpochMilliseconds(), pendingIntent);
+            var resetIntent = new Intent(this, typeof(MainActivity));
+            resetIntent.SetAction(this.GetResetCallForwardingActionName());
+
+            var pendingIntent = PendingIntent.GetActivity(this, default(int), resetIntent, PendingIntentFlags.UpdateCurrent);
+
+            var alarmManager = (AlarmManager) GetSystemService(AlarmService);
+            alarmManager
+                .SetExact(
+                    AlarmType.RtcWakeup, 
+                    alarmDate.ToUniversalTime().ToEpochMilliseconds(), 
+                    pendingIntent);
+
+            ShowToast(alarmDate.FormatDateTime());
+            ShowToast(alarmDate.GetTimeRemaining());
         }
 
         private void OnResetCallForward()

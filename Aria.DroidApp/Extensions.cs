@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Android.Content;
 using Android.Widget;
 
@@ -39,6 +40,24 @@ namespace Aria.DroidApp
             var resetCallFwdAction = context.GetResetCallForwardingActionName();
 
             return StringComparer.InvariantCultureIgnoreCase.Equals(intentAction, resetCallFwdAction);
+        }
+
+        public static string FormatDateTime(this DateTime date)
+        {
+            return date.ToString("ddd dd MMM hh:mm tt", CultureInfo.CurrentUICulture);
+        }
+
+        public static string GetTimeRemaining(this DateTime date)
+        {
+            var timeDiff = date.Subtract(DateTime.Now);
+
+            if (timeDiff.Hours <= 0 && timeDiff.Minutes <= 0)
+                return "Less than a minute";
+
+            if (timeDiff.Hours <= 0 && timeDiff.Minutes > 0)
+                return $"{timeDiff.Minutes} Minutes";
+
+            return $"{timeDiff.Hours} Hours, {timeDiff.Minutes} Minutes";
         }
     }
 }

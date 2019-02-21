@@ -80,7 +80,7 @@ namespace Aria.DroidApp
             if(requestCodeMatched && permissionNameMatched && permissionGrantMatched)
                 ScheduleCallForwardingResetAlarm();
             else
-                ShowToast("Permission to manage calls denied or failed. Contact the App developer.");
+                ShowToast("Permission to manage calls denied or failed. Contact the App developer, if this issue persists.");
         }
 
         private void ScheduleCallForwardingResetAlarm()
@@ -94,8 +94,8 @@ namespace Aria.DroidApp
                     alarmDate.ToUniversalTime().ToEpochMilliseconds(),
                     IntentFactory.CreateWakeOnAlarmIntent(this));
 
-            ShowToast(alarmDate.FormatDateTime());
-            ShowToast(alarmDate.GetTimeRemaining());
+            ShowToast($"Call Forwarding will reset on {alarmDate.FormatDateTime()}");
+            ShowToast($"{alarmDate.GetTimeRemaining()} remaining.");
         }
 
         private void OnCallForwardingResetAlarm()

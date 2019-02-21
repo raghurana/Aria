@@ -1,9 +1,10 @@
 ﻿using System;
+using Android.Content;
 using Android.Widget;
 
 namespace Aria.DroidApp
 {
-    public static class DateTimeUtils
+    public static class Extensions
     {
         public static DateTime ToFutureDateTime(this TimePicker androidTimePicker)
         {
@@ -25,6 +26,19 @@ namespace Aria.DroidApp
 
             var utcEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return Convert.ToInt64((utcDateTime - utcEpoch).TotalMilliseconds);
+        }
+
+        public static string GetResetCallForwardingActionName(this Context context)
+        {
+            return $"{context.PackageName}.reset-call-fwd";
+        }
+
+        public static bool IsCallForwardResetIntent(this Context context, Intent intentToCheck)
+        {
+            var intentAction       = intentToCheck.Action;
+            var resetCallFwdAction = context.GetResetCallForwardingActionName();
+
+            return StringComparer.InvariantCultureIgnoreCase.Equals(intentAction, resetCallFwdAction);
         }
     }
 }

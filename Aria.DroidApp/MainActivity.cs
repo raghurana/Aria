@@ -2,18 +2,22 @@
 using System.Globalization;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Widget;
 
 namespace Aria.DroidApp
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
+    [Activity(
+        Label = "@string/app_name", 
+        Theme = "@style/AppTheme.NoActionBar",
+        LaunchMode = LaunchMode.SingleTop,
+        MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
         private Button resetButton;
         private TimePicker timePicker;
-        private string resetCallFwdAction;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -23,7 +27,7 @@ namespace Aria.DroidApp
             resetButton = FindViewById<Button>(Resource.Id.SaveResetTimeButton);
             timePicker  = FindViewById<TimePicker>(Resource.Id.ResetTimePicker);
 
-            resetCallFwdAction = $"{ApplicationContext.PackageName}.reset-call-fwd";
+            OnNewIntent(Intent);
         }
 
         protected override void OnResume()
@@ -40,15 +44,16 @@ namespace Aria.DroidApp
 
         protected override void OnNewIntent(Intent intent)
         {
-            if (StringComparer.InvariantCultureIgnoreCase.Equals(intent.Action, resetCallFwdAction))
+            base.OnNewIntent(intent);
+
+            if (this.IsCallForwardResetIntent(intent))
                 OnResetCallForward();
         }
 
         private void OnResetButtonClick(object sender, EventArgs e)
         {
             var testIntent = new Intent(this, typeof(MainActivity));
-            testIntent.SetFlags(ActivityFlags.SingleTop | ActivityFlags.FromBackground);
-            testIntent.SetAction(resetCallFwdAction);
+            testIntent.SetAction(this.GetResetCallForwardingActionName());
 
             var pendingIntent = PendingIntent.GetActivity(this, default(int), testIntent, PendingIntentFlags.UpdateCurrent);
 

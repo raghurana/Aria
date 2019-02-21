@@ -12,7 +12,7 @@ namespace Aria.DroidApp
     [Activity(
         Label = "@string/app_name", 
         Theme = "@style/AppTheme.NoActionBar",
-        LaunchMode = LaunchMode.SingleTop,
+        LaunchMode = LaunchMode.SingleInstance,
         MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
@@ -45,6 +45,12 @@ namespace Aria.DroidApp
         protected override void OnNewIntent(Intent intent)
         {
             base.OnNewIntent(intent);
+
+            // Android retains the Intent that was used to create
+            // an activity and if the app is minimied and relaunched from history,
+            // android starts the activity with the last intent not MAIN_LAUNCHER
+            if (intent.Flags.HasFlag(ActivityFlags.LaunchedFromHistory))
+                return;
 
             if (this.IsCallForwardResetIntent(intent))
                 OnResetCallForward();

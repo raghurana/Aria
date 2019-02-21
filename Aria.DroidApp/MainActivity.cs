@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using Android;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -15,6 +17,9 @@ namespace Aria.DroidApp
         MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
+        private const string CallPhonePermission = Manifest.Permission.CallPhone;
+        private const int CallPhonePermissionRequestCode = 123;
+
         private Button resetButton;
         private TimePicker timePicker;
 
@@ -55,27 +60,47 @@ namespace Aria.DroidApp
             var isCallFwdResetIntent = this.IsCallForwardResetIntent(intent);
 
             if (isCallFwdResetIntent && !launchedFromHistory)
-                OnResetCallForward();
+                OnCallForwardingResetAlarm();
         }
 
         private void OnResetButtonClick(object sender, EventArgs e)
         {
-            var alarmDate = timePicker.ToFutureDateTime();
+            if (CheckSelfPermission(CallPhonePermission) == Permission.Granted)
+                ScheduleCallForwardingResetAlarm();
+            else
+                RequestPermissions(new[] {CallPhonePermission}, CallPhonePermissionRequestCode);
+        }
 
-            var alarmManager = (AlarmManager) GetSystemService(AlarmService);
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
+        {
+            var requestCodeMatched     = requestCode == CallPhonePermissionRequestCode;
+            var permissionNameMatched  = permissions.Any() && permissions.First() == CallPhonePermission;
+            var permissionGrantMatched = grantResults.Any() && grantResults.First() == Permission.Granted;
+            
+            if(requestCodeMatched && permissionNameMatched && permissionGrantMatched)
+                ScheduleCallForwardingResetAlarm();
+            else
+                ShowToast("Permission to manage calls denied or failed. Contact the App developer.");
+        }
+
+        private void ScheduleCallForwardingResetAlarm()
+        {
+            var alarmDate    = timePicker.ToFutureDateTime();
+            var alarmManager = (AlarmManager)GetSystemService(AlarmService);
+
             alarmManager
                 .SetExact(
-                    AlarmType.RtcWakeup, 
-                    alarmDate.ToUniversalTime().ToEpochMilliseconds(), 
+                    AlarmType.RtcWakeup,
+                    alarmDate.ToUniversalTime().ToEpochMilliseconds(),
                     IntentFactory.CreateWakeOnAlarmIntent(this));
 
             ShowToast(alarmDate.FormatDateTime());
             ShowToast(alarmDate.GetTimeRemaining());
         }
 
-        private void OnResetCallForward()
+        private void OnCallForwardingResetAlarm()
         {
-            ShowToast("Alarm Invoked");
+            StartActivity(IntentFactory.CreateResetCallForwardingIntent());
         }
 
         private void ShowToast(string message)

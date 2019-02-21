@@ -94,7 +94,7 @@ namespace Aria.DroidApp
                     alarmDate.ToUniversalTime().ToEpochMilliseconds(),
                     IntentFactory.CreateWakeOnAlarmIntent(this));
 
-            ShowToast($"Call Forwarding will reset on {alarmDate.FormatDateTime()}");
+            ShowToast($"Scheduled for {alarmDate.FormatDateTime()}");
             ShowToast($"{alarmDate.GetTimeRemaining()} remaining.");
         }
 

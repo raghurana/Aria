@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Globalization;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Widget;
-using Java.Lang;
 
 namespace Aria.DroidApp
 {
@@ -12,14 +12,18 @@ namespace Aria.DroidApp
     public class MainActivity : AppCompatActivity
     {
         private Button resetButton;
-        private string resetCallForwardAction;
+        private TimePicker timePicker;
+        private string resetCallFwdAction;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
+
             resetButton = FindViewById<Button>(Resource.Id.SaveResetTimeButton);
-            resetCallForwardAction = $"{ApplicationContext.PackageName}.reset-call-fwd";
+            timePicker  = FindViewById<TimePicker>(Resource.Id.ResetTimePicker);
+
+            resetCallFwdAction = $"{ApplicationContext.PackageName}.reset-call-fwd";
         }
 
         protected override void OnResume()
@@ -36,7 +40,7 @@ namespace Aria.DroidApp
 
         protected override void OnNewIntent(Intent intent)
         {
-            if (StringComparer.InvariantCultureIgnoreCase.Equals(intent.Action, resetCallForwardAction))
+            if (StringComparer.InvariantCultureIgnoreCase.Equals(intent.Action, resetCallFwdAction))
                 OnResetCallForward();
         }
 
@@ -44,17 +48,27 @@ namespace Aria.DroidApp
         {
             var testIntent = new Intent(this, typeof(MainActivity));
             testIntent.SetFlags(ActivityFlags.SingleTop | ActivityFlags.FromBackground);
-            testIntent.SetAction(resetCallForwardAction);
+            testIntent.SetAction(resetCallFwdAction);
 
             var pendingIntent = PendingIntent.GetActivity(this, default(int), testIntent, PendingIntentFlags.UpdateCurrent);
 
+            var alarmDate = timePicker.ToFutureDateTime();
+            ShowToast(alarmDate.ToString("ddd dd MMM hh:mm tt", CultureInfo.CurrentUICulture));
+
             var alarmManager = (AlarmManager)GetSystemService(AlarmService);
-            alarmManager.SetExact(AlarmType.RtcWakeup, JavaSystem.CurrentTimeMillis() + 5000, pendingIntent);
+            alarmManager.SetExact(AlarmType.RtcWakeup, alarmDate.ToUniversalTime().ToEpochMilliseconds(), pendingIntent);
         }
 
         private void OnResetCallForward()
         {
+            ShowToast("Alarm Invoked");
+        }
 
+        private void ShowToast(string message)
+        {
+            Toast
+                .MakeText(this, message, ToastLength.Long)
+                .Show();
         }
     }
 }

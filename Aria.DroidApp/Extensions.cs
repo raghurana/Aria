@@ -50,9 +50,15 @@ namespace Aria.DroidApp
             return $"{timeDiff.Hours} Hours, {timeDiff.Minutes} Minutes";
         }
 
-        public static DateTime ToFutureDateTime(this TimePicker androidTimePicker)
+        public static DateTime ToFutureDateTime(this TimePicker timePicker)
         {
-            var newDateLocal = DateTime.Today.AddHours(androidTimePicker.Hour).AddMinutes(androidTimePicker.Minute);
+            timePicker.ClearFocus();
+
+            var newDateLocal = 
+                DateTime
+                    .Today
+                    .AddHours(timePicker.Hour)
+                    .AddMinutes(timePicker.Minute);
 
             if (newDateLocal <= DateTime.Now)
                 newDateLocal = newDateLocal.AddDays(1);

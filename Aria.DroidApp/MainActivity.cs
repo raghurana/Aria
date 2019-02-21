@@ -48,11 +48,14 @@ namespace Aria.DroidApp
 
             // Android retains the Intent that was used to create
             // an activity and if the app is minimised and relaunched from history,
-            // android starts the activity with the last intent not MAIN_LAUNCHER causing 
+            // android starts the activity with the same intent not MAIN_LAUNCHER causing 
             // this intent to be handled multiple times. This means the app will reset 
             // call forwarding every time the app is launced from history if the activity  
-            // was started with the call forward reset intent.
-            if (this.IsCallForwardResetIntent(intent) && !intent.Flags.HasFlag(ActivityFlags.LaunchedFromHistory))
+            // was started with the call forward reset pending intent.
+            var launchedFromHistory  = intent.Flags.HasFlag(ActivityFlags.LaunchedFromHistory);
+            var isCallFwdResetIntent = this.IsCallForwardResetIntent(intent);
+
+            if (isCallFwdResetIntent && !launchedFromHistory)
                 OnResetCallForward();
         }
 

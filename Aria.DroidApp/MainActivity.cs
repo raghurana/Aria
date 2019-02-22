@@ -7,6 +7,9 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Widget;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 
 namespace Aria.DroidApp
 {
@@ -26,6 +29,9 @@ namespace Aria.DroidApp
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+
+            AppCenter.Start("7d917ae7-5b08-427f-8ed7-5e6e1e6e20d1", typeof(Analytics), typeof(Crashes));
+
             SetContentView(Resource.Layout.activity_main);
 
             resetButton = FindViewById<Button>(Resource.Id.SaveResetTimeButton);

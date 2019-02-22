@@ -30,7 +30,7 @@ namespace Aria.DroidApp
         {
             base.OnCreate(savedInstanceState);
 
-            AppCenter.Start("7d917ae7-5b08-427f-8ed7-5e6e1e6e20d1", typeof(Analytics), typeof(Crashes));
+            AppCenter.Start("1396bddf-19a2-41ff-85b1-aed167e18c59", typeof(Analytics), typeof(Crashes));
 
             SetContentView(Resource.Layout.activity_main);
 

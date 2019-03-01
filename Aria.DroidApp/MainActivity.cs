@@ -5,6 +5,8 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Support.V7.App;
 using Android.Widget;
 using Microsoft.AppCenter;
@@ -71,10 +73,10 @@ namespace Aria.DroidApp
 
         private void OnResetButtonClick(object sender, EventArgs e)
         {
-            if (CheckSelfPermission(CallPhonePermission) == Permission.Granted)
+            if (ContextCompat.CheckSelfPermission(this, CallPhonePermission) == Permission.Granted)
                 ScheduleCallForwardingResetAlarm();
             else
-                RequestPermissions(new[] {CallPhonePermission}, CallPhonePermissionRequestCode);
+                ActivityCompat.RequestPermissions(this, new[] {CallPhonePermission}, CallPhonePermissionRequestCode);
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)

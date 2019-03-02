@@ -50,21 +50,25 @@ namespace Aria.DroidApp
             return $"{timeDiff.Hours} Hours, {timeDiff.Minutes} Minutes";
         }
 
-        public static DateTime ToFutureDateTime(this TimePicker timePicker)
+        public static DateTime ToCompatFutureDateTime(this TimePicker timePicker, bool isMarshmallowOrAbove)
         {
             timePicker.ClearFocus();
 
-            var newDateLocal = 
-                DateTime
-                    .Today
-                    .AddHours(timePicker.Hour)
-                    .AddMinutes(timePicker.Minute);
-
+            var newDateLocal =
+                isMarshmallowOrAbove
+                    ? DateTime
+                        .Today
+                        .AddHours(Convert.ToDouble(timePicker.Hour))
+                        .AddMinutes(Convert.ToDouble(timePicker.Minute))
+                    : DateTime
+                        .Today
+                        .AddHours(Convert.ToDouble(timePicker.CurrentHour))
+                        .AddMinutes(Convert.ToDouble(timePicker.CurrentMinute));
+            
             if (newDateLocal <= DateTime.Now)
                 newDateLocal = newDateLocal.AddDays(1);
 
             return newDateLocal;
         }
-
     }
 }

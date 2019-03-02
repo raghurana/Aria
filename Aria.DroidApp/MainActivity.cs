@@ -28,12 +28,14 @@ namespace Aria.DroidApp
         private Button resetButton;
         private TimePicker timePicker;
 
+        public static bool IsPhoneMarshmallowOrAbove => Build.VERSION.SdkInt >= BuildVersionCodes.M;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
             AppCenter.Start("1396bddf-19a2-41ff-85b1-aed167e18c59", typeof(Analytics), typeof(Crashes));
-
+            
             SetContentView(Resource.Layout.activity_main);
 
             resetButton = FindViewById<Button>(Resource.Id.SaveResetTimeButton);
@@ -73,10 +75,20 @@ namespace Aria.DroidApp
 
         private void OnResetButtonClick(object sender, EventArgs e)
         {
-            if (ContextCompat.CheckSelfPermission(this, CallPhonePermission) == Permission.Granted)
-                ScheduleCallForwardingResetAlarm();
+            if (IsPhoneMarshmallowOrAbove)
+            {
+                if (ContextCompat.CheckSelfPermission(this, CallPhonePermission) == Permission.Granted)
+                    ScheduleCallForwardingResetAlarm();
+                else
+                    ActivityCompat.RequestPermissions(this, new[] { CallPhonePermission }, CallPhonePermissionRequestCode);
+            }
             else
-                ActivityCompat.RequestPermissions(this, new[] {CallPhonePermission}, CallPhonePermissionRequestCode);
+            {
+                // Request Permissions Api didnt exist below Android 6 (Marshmallow)
+                // All permissions had to be agreed by the user at install time.
+                // So it is safe to assume this permission would be granted by now.
+                ScheduleCallForwardingResetAlarm();
+            }
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Permission[] grantResults)
@@ -93,7 +105,7 @@ namespace Aria.DroidApp
 
         private void ScheduleCallForwardingResetAlarm()
         {
-            var alarmDate    = timePicker.ToFutureDateTime();
+            var alarmDate    = timePicker.ToCompatFutureDateTime(IsPhoneMarshmallowOrAbove);
             var alarmManager = (AlarmManager)GetSystemService(AlarmService);
 
             alarmManager

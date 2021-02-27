@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Android;
 using Android.App;
@@ -27,9 +29,10 @@ namespace Aria.DroidApp
 
         private Button resetButton;
         private TimePicker timePicker;
+        private TextView versionTextview;
 
-        public static bool IsPhoneMarshmallowOrAbove => Build.VERSION.SdkInt >= BuildVersionCodes.M;
-
+        private static bool IsPhoneMarshmallowOrAbove => Build.VERSION.SdkInt >= BuildVersionCodes.M;
+            
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -40,6 +43,13 @@ namespace Aria.DroidApp
 
             resetButton = FindViewById<Button>(Resource.Id.SaveResetTimeButton);
             timePicker  = FindViewById<TimePicker>(Resource.Id.ResetTimePicker);
+            versionTextview = FindViewById<TextView>(Resource.Id.VersionTextView);
+
+            versionTextview.Text = "app version: " +Application
+                .Context
+                .ApplicationContext
+                .PackageManager
+                .GetPackageInfo(Application.Context.ApplicationContext.PackageName, 0).VersionName;
 
             OnNewIntent(Intent);
         }
@@ -109,18 +119,26 @@ namespace Aria.DroidApp
             var alarmManager = (AlarmManager)GetSystemService(AlarmService);
 
             alarmManager
-                .SetExact(
+                .SetExactAndAllowWhileIdle(
                     AlarmType.RtcWakeup,
                     alarmDate.ToUniversalTime().ToEpochMilliseconds(),
                     IntentFactory.CreateWakeOnAlarmIntent(this));
 
             ShowToast($"Scheduled for {alarmDate.FormatDateTime()}");
             ShowToast($"{alarmDate.GetTimeRemaining()} remaining.");
+
+            Analytics.TrackEvent("Alarm Scheduled", new Dictionary<string, string> {
+                { "ScheduleDateTime", alarmDate.FormatDateTime() }
+            });
         }
 
         private void OnCallForwardingResetAlarm()
         {
             StartActivity(IntentFactory.CreateResetCallForwardingIntent());
+
+            Analytics.TrackEvent("Alarm Erased", new Dictionary<string, string> {
+                { "ErasedDateTime", DateTime.Now.FormatDateTime() }
+            });
         }
 
         private void ShowToast(string message)
@@ -129,6 +147,7 @@ namespace Aria.DroidApp
                 .MakeText(this, message, ToastLength.Long)
                 .Show();
         }
+
     }
 }
 
